@@ -93,7 +93,7 @@ class FIConfig(object):
 		FaultTypes.ZERO.value : (zeroScalar, zeroTensor),
 		FaultTypes.ELEM.value : (randomElementScalar, randomElementTensor),
 		FaultTypes.ELEMbit.value : (bitElementScalar, bitElementTensor),
-		FaultTypes.RANDbit.value : (bitScalar, bitTensor)
+		FaultTypes.RANDbit.value : (bitScalar, bitTensor),
 		FaultTypes.BINA.value : (binaryBitFlip, binaryBitFlip),	# treat the scalar and tensor datatype as the same for injection
 		FaultTypes.SEQU.value : (sequentialBitFlip, sequentialBitFlip) # treat the scalar and tensor datatype as the same for injection
 
