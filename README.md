@@ -1,6 +1,6 @@
 ***BinFI: A binary fault injector for TensorFlow applications based on TensorFI (https://github.com/DependableSystemsLab/TensorFI)***
  
-This repo is based on TensorFI, a fault injector for TensorFlow applications written in Python. It provides a new fault injection method - *binary fault injection*. Unlikely conventional random FI, BinFI performs a binary-search like FI and it is able to *efficiently identify the bits, where bit-flips can lead to SDCs.* We also provide exhaustive fault injection to perform injection on the whole state space (to validate the results by BinFI).
+This repo is based on TensorFI, a fault injector for TensorFlow applications written in Python. It provides a new fault injection method - *binary fault injection*. Unlikely conventional random FI, BinFI performs a binary-search like FI and it is able to *efficiently identify the bits, where bit-flips can lead to SDCs (e.g., image misclassification).* We also provide exhaustive fault injection to perform injection on the whole state space (to validate the results by BinFI).
 
 ***How to run***
 
