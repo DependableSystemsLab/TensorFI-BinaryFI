@@ -5,6 +5,7 @@
 import numpy as np
 
 # Currently, we support 8 types of faults {None, Rand, Zero, Rand-element, bitFlip-element, bitFlip-tensor, binaryBitFlip, sequentialBitFlip} - See fiConfig.py
+# NOTE: The last two mode: binary injection and exhaustive injection are not supported in this repo, please check our another GitHub repo.
 
 def randomScalar( dtype, max = 1.0 ):
 	"Return a random value of type dtype from [0, max]"
@@ -189,11 +190,11 @@ def bitTensor ( dtype, val):
 ##########################################
 def initBinaryInjection(isFirstTime=True):
 	"Initialize the values for binary fault injection"
-	"You should call this function before performing binary FI"
+	"NOTE: You should call this function before performing binary FI"
 
-	# Important: You have to specify this value in the main program, based on the result from the FI
+	# NOTE: You have to specify this value in the main program, based on the result from the FI
 	# E.g., if the FI does not result in SDC, you should assign sdcFromLastFI=False, which will be used in the next FI run
-	global sdcFromLastFI 
+	global sdcFromLastFI # SDC status from last FI
 	global indexOfInjectedData # index of the data to be injected
 
 	# we use binary search to decide to bit to be injected, requiring upper and lower indice for the bisecting the injection space
@@ -207,16 +208,17 @@ def initBinaryInjection(isFirstTime=True):
 	global indexOfLastInjectedBit # index of the last injected bit
 
 	global sdcRate # cumulative sdc rate at the current op, the sdc rate is calculated by using the SDC-boundary from bits of 0 and 1.
-	global sdc_bound_1	# number of critical bits in the bits of 1 (so the indice of the sdcBoundary should minus 1 as the indices starts from 0)
-	global sdc_bound_0	# number of critical bits in the bits of 0 (so the indice of the sdcBoundary should minus 1 as the indices starts from 0)
+	global sdc_bound_1	# number of critical bits in the bits of 1 
+	global sdc_bound_0	# number of critical bits in the bits of 0 
 	
- 	# indexOf_SDC_nonSDC_bit[0] points the indice of the critical bits, [1] points to that of the non-critical bits (if any)
- 	# This is used to derive the SDC bound
+ 	# indexOf_SDC_nonSDC_bit[0] points the indice of the critical bits, 
+ 	# indexOf_SDC_nonSDC_bit[1] points to that of the non-critical bits (if any)
+ 	# This is used to get the SDC bound
 	global indexOf_SDC_nonSDC_bit 
 	global isKeepDoingFI # sign for whether keep doing FI
-	global fiTime 	# number of FI trials so far
+	global fiTime 	# number of FI trials so far, i.e., the overhead of running binFI
 	global isDoneForCurData # sign for whether the binary FI on the current data item is done
-	global isFrom0to1 # sign for the FI from bits of 0 to bits 1
+	global isFrom0to1 # sign for FI from bits of 0 to bits 1
 
  	# The first time to do FI on the current op
 	if(isFirstTime): 
@@ -242,15 +244,14 @@ def initBinaryInjection(isFirstTime=True):
 	isDoneForCurData = False
 	
 
-def fiOnList(bitIndexToBeInjected, isBits0, injectedData, intLen):
+def binFaultInjection(bitIndexToBeInjected, isBits0, injectedData, intLen):
 	"Perform binary FI on the bits of 0 or 1"
 	# bitIndexToBeInjected: is the list of indices of the bits, that will be injected.
 	# 						The index is the actually index in the injected data. 
 	#						E.g., 5 = 101B, so index of the bits of 1 will be [0, 2].
 	
 	global sdcFromLastFI # flag for whether the last FI cause SDC or not, used for indicating the next bit to be injected
-	global indexOfLastInjectedBit # index of the last two injected bits
-	global indexOfInjectedData # index of the data to be injected
+	global indexOfLastInjectedBit # index of the last two injected bits 
 	global frontIndice 
 	global rearIndice  
 	global indexOfInjectedBit # index of bit to be injected
@@ -269,7 +270,7 @@ def fiOnList(bitIndexToBeInjected, isBits0, injectedData, intLen):
 		rearIndice = bitIndexToBeInjected.index(indexOfLastInjectedBit) - 1
 
 	" terminate binary search: 1) front = rear; or 2) front > rear, which occurs when front and rear all pointed to the same indice"
-	# indexOfLastInjectedBit could be not in bitIndexToBeInjected, when last FI is done for the bits of 0, and now the FI is proceeding for the bits of 1
+	# indexOfLastInjectedBit could not be in bitIndexToBeInjected, when last FI is done for the bits of 0, and now the FI is moving to the bits of 1
 	#  That's why we need (indexOfLastInjectedBit in bitIndexToBeInjected)
 	if( ( (indexOfLastInjectedBit in bitIndexToBeInjected) and (frontIndice == rearIndice == bitIndexToBeInjected.index(indexOfLastInjectedBit)))
 		or (frontIndice>rearIndice) ): 
@@ -308,9 +309,7 @@ def fiOnList(bitIndexToBeInjected, isBits0, injectedData, intLen):
 def binaryBitFlip(dtype, val):  	
 	"binary FI on both tensor and scalar values"
 	
-	global indexOfInjectedData # index of the data to be injected
-	global frontIndice # front indice for bisecting injection space
-	global rearIndice # rear indice for bisecting injection space
+	global indexOfInjectedData # index of the data to be injected 
 	global indexOfBit_1 # list of the index of the bits of "1" of the current injected data
 	global indexOfBit_0 # list of the index of the bits of "0" of the current injected data
 	global isFIonBits0 # flag for whether still doing FI on the bits of 0  
@@ -331,7 +330,7 @@ def binaryBitFlip(dtype, val):
 
 
 	def updateSDC(bitIndexToBeInjected): 
-		# derive the number of critical bits (also the sdc boundary) based on the binary FI
+		# derive the number of critical bits (i.e., the sdc boundary) based on binary FI
 
 		global indexOf_SDC_nonSDC_bit  
 		sdcBitCount = 0
@@ -401,7 +400,8 @@ def binaryBitFlip(dtype, val):
 	"We separately do injection for the bits of 0 and 1 since they would have different impacts"
 	# FI on the bits of 0
 	if(isFIonBits0): 
-		isFIonBits0, updatedVal = fiOnList(bitIndexToBeInjected=indexOfBit_0, isBits0=True, injectedData=injectedData, intLen= intLen) 
+		isFIonBits0, updatedVal = binFaultInjection(bitIndexToBeInjected=indexOfBit_0, isBits0=True, injectedData=injectedData, intLen= intLen) 
+		
 		if(isFIonBits0):
 			val[indexOfInjectedData] = updatedVal # return the value with fault injected
 		else:
@@ -411,7 +411,8 @@ def binaryBitFlip(dtype, val):
 	# FI on the bits of 1
 	elif(isFIonBits1):
 		isFrom0to1 = False # set to false for the current data, no longer needed. 
-		isFIonBits1, updatedVal = fiOnList(bitIndexToBeInjected=indexOfBit_1, isBits0=False, injectedData=injectedData, intLen= intLen) 
+		isFIonBits1, updatedVal = binFaultInjection(bitIndexToBeInjected=indexOfBit_1, isBits0=False, injectedData=injectedData, intLen= intLen) 
+
 		if(isFIonBits1):
 			val[indexOfInjectedData] = updatedVal # return the value with fault injection
 		else:
