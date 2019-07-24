@@ -12,5 +12,6 @@ To apply BinFI on a ML model, you need to ensure that the computations within th
 
 
 ***Paper***
+
 Zitao Chen, Guanpeng Li, Karthik Pattabiraman, and Nathan DeBardeleben. 2019. BinFI: An Efficient Fault Injector for Safety-Critical Machine Learning Systems . In Proceeding of SC19, November 17-22, 2019, Denver, CO. ACM, New York, NY, USA, 13 pages.
 
