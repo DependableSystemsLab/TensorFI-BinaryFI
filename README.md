@@ -4,8 +4,7 @@ This repo is based on TensorFI, a fault injector for TensorFlow applications wri
 
 ***How to run***
 
-The major difference of this repo with TensorFI in the /TensorFI/faultTypes.py module where we provide binary injection mode. So please follow the instruction in the TensorFI repo on how to install and run the tool.
-
+The major difference of this repo with TensorFI is that we provide binary injection mode (in /TensorFI/faultTypes.py). You can use this feature by configuring the config file accordingly. The installation and step to run the tool is the same as that for TensorFI.
 
 ***Prerequisite***
 
@@ -13,5 +12,5 @@ To apply BinFI on a ML model, you need to ensure that the computations within th
 
 
 ***Paper***
-BinFI: An Efficient Fault Injector for Safety-Critical Machine Learning Systems
+Zitao Chen, Guanpeng Li, Karthik Pattabiraman, and Nathan DeBardeleben. 2019. BinFI: An Efficient Fault Injector for Safety-Critical Machine Learning Systems . In Proceeding of SC19, November 17-22, 2019, Denver, CO. ACM, New York, NY, USA, 13 pages.
 
