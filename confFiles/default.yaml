@@ -13,8 +13,8 @@
 #   4) Rand-element - shuffle one of the data item in the output of the target op into random value
 #   5) bitFlip-element - single bit-flip over one data item in the output of the target op
 #   6) bitFlip-tensor - single bit-flip over all data items in the output of the target op
-#   7) binaryBitFlip  - binary fault injection - see our paper
-#   8) sequentialBitFlip  - exhaustive FI to do FI on every state space
+#   7) binaryBitFlip  - binary fault injection
+#   8) sequentialBitFlip  - exhaustive FI 
 ScalarFaultType: None
 TensorFaultType: None 
 
