@@ -209,6 +209,9 @@ def condPerturb(op, res):
 					randInstanceMap[op] = np.random.randint(low=1, high=instance+1)	
 					faultLog.updateInjectedInstance(randInstanceMap[op], instance)
 				
+				#NOTE: This is an example config, we only do injection on the 2nd ops.
+				randInstanceMap[op] = 2
+				
 				# first instance of the op
 				if(not visitedOp.has_key(op)):	visitedOp[op] = 1	
 				# not the first instance of op
