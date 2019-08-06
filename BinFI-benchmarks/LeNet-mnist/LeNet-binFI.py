@@ -149,10 +149,10 @@ def main(_):
     test_labels_filename = maybe_download('t10k-labels-idx1-ubyte.gz')
 
     # Extract it into numpy arrays.
-    train_data = extract_data(train_data_filename, 10000)
-    train_labels = extract_labels(train_labels_filename, 10000)
+    train_data = extract_data(train_data_filename, 1000)
+    train_labels = extract_labels(train_labels_filename, 1000)
 
-    test_batch = 64*3
+    test_batch = 64
     test_data = extract_data(test_data_filename, test_batch)
     test_labels = extract_labels(test_labels_filename, test_batch) 
 
@@ -239,7 +239,7 @@ def main(_):
                           strides=[1, 2, 2, 1],
                           padding='SAME')
 
- 
+    
     conv = tf.nn.conv2d(pool,
                         conv2_weights,
                         strides=[1, 1, 1, 1],
@@ -249,7 +249,7 @@ def main(_):
                           ksize=[1, 2, 2, 1],
                           strides=[1, 2, 2, 1],
                           padding='SAME')
-  
+    
 
     # Reshape the feature map cuboid into a 2D matrix to feed it to the
     # fully connected layers.
@@ -362,7 +362,6 @@ def main(_):
         '''
     # Finally print the result!  
 
-
     # we use the inputs that can be correctly identified by the model for FI
     test_error, indexOfCorrectSample = error_rate(eval_in_batches(test_data, sess), test_labels, True)
     print('Test error: %.1f%%' % test_error)
@@ -371,7 +370,6 @@ def main(_):
       assert test_error == 0.0, 'expected 0.0 test_error, got %.2f' % (
           test_error,)
     print("index of samples correctly learned by the model: \n",indexOfCorrectSample) 
-
     newData = []
     newLab = []
 
@@ -382,8 +380,8 @@ def main(_):
     # Add the fault injection nodes to it
     fi = ti.TensorFI(sess, logLevel = 50, name = "convolutional", disableInjections=False)
     
-    # inject ten inputs
-    for i in range(10):
+    # inject into one input
+    for i in range(1):
       each = indexOfCorrectSample[i]
       newData = ( test_data[each].reshape(1,28,28,1) )
       newLab = ( test_labels[each].reshape(1) )
