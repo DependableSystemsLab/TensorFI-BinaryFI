@@ -12,9 +12,11 @@
 #   4) Rand-element - shuffle one of the data item in the output of the target op into random value
 #   5) bitFlip-element - single bit-flip over one data item in the output of the target op
 #   6) bitFlip-tensor - single bit-flip over all data items in the output of the target op 
+#   7) binaryBitFlip  - binary fault injection
+#   8) sequentialBitFlip  - exhaustive FI 
 ScalarFaultType: None
-TensorFaultType: bitFlip-element 
-
+TensorFaultType: sequentialBitFlip # use this config if you're running LeNet-allFI.py
+#TensorFaultType: binaryBitFlip   # use this config if you're running LeNet-binFI.py
 
 # Add the list of Operations and their probabilities here
 # Each entry must be in a separate line ad start with a '-'
@@ -23,6 +25,7 @@ TensorFaultType: bitFlip-element
 # NOTE: These should not be any tabs anywhere below
 
 Ops:
+  - ADD = 1.0
 #  - CONV2D = 1.0 # Chooses all operations
 #  - LRN = 1.0
 # - EQUAL = 1.0
@@ -42,8 +45,8 @@ Instances:
   - RELU = 3
   - BIASADD = 2
   - RESHAPE = 1
-  - ADD = 3
-  - MATMUL = 3 
+  - ADD = 2
+  - MATMUL = 2 
 
 
 
