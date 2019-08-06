@@ -22,7 +22,7 @@ import sys
 import os 
 
 ######
-data = pandas.read_csv("./experimentalTest/survive.csv")
+data = pandas.read_csv("./survive.csv")
 data = preprocessing.cleanDataForClassification(data, "class")
  
 labels = []
