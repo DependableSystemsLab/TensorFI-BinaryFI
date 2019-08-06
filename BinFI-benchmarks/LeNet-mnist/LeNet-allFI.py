@@ -371,46 +371,49 @@ def main(_):
           test_error,)
     print("index of samples correctly learned by the model: \n",indexOfCorrectSample) 
     newData = []
-    newLab = []
+    newLab = [] 
  
     # save FI results into file, "eachRes" saves each FI result, "resFile" saves SDC rate
-    resFile = open('lenet-seqFI.csv', "a")
-    eachRes = open("lenets-seqEach.csv", "a")
+    eachRes = open("./eachFI.csv", "a")
+    resFile = open("./randomFI.csv", "a")
 
     # Add the fault injection nodes to it
-    fi = ti.TensorFI(sess, logLevel = 50, name = "convolutional", disableInjections=False)
-    
-    # inject into one input
+    fi = ti.TensorFI(sess, logLevel = 50, name = "convolutional", disableInjections=True)
+
+    test_error, indexOfCorrectSample = error_rate(eval_in_batches(test_data, sess), test_labels, True)
+    print('Test error: %.1f%%' % test_error)
+
+
+    fi.turnOnInjections()
+
+    # inject ten inputs
     for i in range(1):
       each = indexOfCorrectSample[i]
       newData = ( test_data[each].reshape(1,28,28,1) )
       newLab = ( test_labels[each].reshape(1) )
 
-      totalFI = 0.
+
+      fiCount = 1
       sdcCount = 0.
-      # initiliaze for exhaustive FI
-      ti.faultTypes.sequentialFIinit()
-      while(ti.faultTypes.isKeepDoingFI):
-        test_error , _ = error_rate(eval_in_batches(newData, sess), newLab, True) 
-        totalFI += 1
+      for j in range(fiCount):
+        test_error, _ = error_rate(eval_in_batches(newData, sess), newLab, True) 
         # FI results in SDC
         if(test_error == 100.):
           sdcCount += 1
-          eachRes.write(`0` + ",")
+          eachRes.write(`0`+",")
         else:
           eachRes.write(`1` + ",")
-
-        print("input:", i, " num of FI:", totalFI, " error:", test_error)
-
+ 
       eachRes.write("\n")
-      print("sdc:", sdcCount/totalFI, " FI time:" totalFI)
-      resFile.write(`sdcCount/totalFI` + "," + `totalFI` + "\n")
-
+      print("sdc:", sdcCount/fiCount)
+      resFile.write(`sdcCount/fiCount` + "," + `fiCount` + "\n")
+    
  
 
     # Make the log files in TensorBoard	
 #    logs_path = "./logs"
 #    logWriter = tf.summary.FileWriter( logs_path, sess.graph )
+
  
  
 
