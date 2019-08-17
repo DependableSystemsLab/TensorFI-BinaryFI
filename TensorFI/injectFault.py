@@ -3,7 +3,8 @@
 
 import tensorflow as tf
 import numpy as np
-import logging 
+import logging
+import conv2d
 from fiConfig import * 
 from fiLog import *
 from threading import current_thread
@@ -35,6 +36,8 @@ def initFIConfig(fiParams):
 	global totalVistedOp
 	# which op to be injected in the whole run
 	global injectedOp
+	# data to be injected
+	global injectedData
 
 	fiConf = FIConfig(fiParams)
 	logging.debug("Initialized config file : " + str(fiConf))
@@ -49,6 +52,7 @@ def initFIConfig(fiParams):
 	randInstanceMap = {}
 	totalVistedOp = 0
 	injectedOp = 0
+	injectedData = []
 	return fiConf
 
 # End of fiConfing
@@ -186,7 +190,7 @@ def condPerturb(op, res):
 				# Retreive the probability of perturbing this instruction
 				# and generate a random number in the interval [0, 1]
 				# and only perturb it only if the random no. <= the probability 
- 				
+
 				prob = fiConf.getProbability(op)
 				rn = np.random.random()		# random.random returns a number in [0, 1] 
 				if (rn <= prob):     
@@ -207,11 +211,10 @@ def condPerturb(op, res):
 				if (not randInstanceMap.has_key(op)): 
 					# random instance of the selected op to be injected
 					randInstanceMap[op] = np.random.randint(low=1, high=instance+1)	
+					randInstanceMap[op] = 2
 				faultLog.updateInjectedInstance(randInstanceMap[op], instance)
 				
-				#NOTE: This is an example config, we only do injection on the 2nd ops.
-				randInstanceMap[op] = 2
-				
+
 				# first instance of the op
 				if(not visitedOp.has_key(op)):	visitedOp[op] = 1	
 				# not the first instance of op
@@ -219,18 +222,14 @@ def condPerturb(op, res):
 
 				# determine if the current instance is selected for injection 
 				if(visitedOp[op] == randInstanceMap[op]):   
-					
-					##########################################
-					# record all the data to be injected
-					injectedData = open("data.csv", "w")
-					tmpData = res.flatten()
-					for each in tmpData:
-						injectedData.write(`each` + ",")
-					##########################################	
-						
-						
+
+					# record the data to be injected
+					global injectedData 
+					injectedData = res.flatten()
+
 					res = perturb(res) 
 					faultLog.commit()
+
 
 				# current run has finished, re-initialize the visit table for the next run 
 				# used when you need to do injection on the same op in the next run
@@ -248,7 +247,7 @@ def condPerturb(op, res):
 				# select one random op to be injected in the whole run
 				if(injectedOp == 0):
 					injectedOp = np.random.randint(low=1, high=totalInstance+1) 
-				faultLog.updateInjectedInstance(injectedOp, totalInstance)
+					faultLog.updateInjectedInstance(injectedOp, totalInstance)
 				# inject fault at the output of the operation
 				if(totalVistedOp == injectedOp):
 					res = perturb(res)
@@ -746,9 +745,20 @@ def injectFaultTanh(a):
 	if logReturn: logging.debug("\tReturning from Tanh " + str(res) )
 	return res
 
-def injectFaultLRN(a, bias, alpha, beta):
-	"Function to call injectFault on LRN"
-	logging.debug("Calling Operator LRN" + getArgs(a, bias, alpha, beta)) 
+# End of implemented operators
+def injectFaultRandomUniform(a):
+	"Function to call injectFault on Random Uniform"
+	# FIXME: Implement this functionality
+	resOp = tf.random_uniform(a)
+	with tf.Session() as sess:
+		res = resOp.eval()
+	return res
+#	logging.debug("Calling Operator RandomUniform")
+#	raise NotImplementedError("RandomUniform")
+
+
+def injectLRN(a, bias, alpha, beta):
+	"Function to call injectFault on Random Uniform"
 	# FIXME: How to derive the depth_radius from LRN
 	# Currently we manually use the value from the main program.
 
@@ -757,22 +767,8 @@ def injectFaultLRN(a, bias, alpha, beta):
 	with tf.Session() as sess:
 		res = resOp.eval() 
 	res = condPerturb(Ops.LRN, res)
-	if logReturn: logging.debug("\tReturning from LRN " + str(res) )
-	return res 
-
-
-def injectFaultELU(a):
-	"Function to call injectFault on ELU"
-	logging.debug("Calling Operator ELU " + getArgs(a))
-
-	relu = tf.nn.elu(a)
-	with tf.Session() as sess:
-		res = relu.eval()
-	res = condPerturb(Ops.ELU, res)
-	if logReturn: logging.debug("\tReturning from ELU " + str(res) )
 	return res
-
-# End of implemented operators
+#	raise NotImplementedError("LRN")
 
 
 ##### None of the functions below have been implemented yet as they're not used #####
@@ -815,6 +811,7 @@ def injectFaultSoftmaxCEWL(inputs):
 	logging.debug("Calling Operator SoftmaxCEWL")
 	raise NotImplementedError("SoftmaCEWL")	
 
+
 def injectFaultSlice(inputs):
 	"Function to call injectFault on Slice"
 	# FIXME: Implement this functionality
@@ -839,17 +836,23 @@ def injectFaultRandomUniformInt(a):
 	logging.debug("Calling Operator RandomUniformInt")
 	raise NotImplementedError("RandomUniformInt")
 
-def injectFaultRandomUniform(a):
-	"Function to call injectFault on Random Uniform"
-	# FIXME: Implement this functionality
-	logging.debug("Calling Operator RandomUniform")
-	raise NotImplementedError("RandomUniform")
-	
 def injectFaultRandomStandardNormal(a):
 	"Function to call injectFault on Random Standard Normal"
 	# FIXME: Implement this functionality
 	logging.debug("Calling Operator RandomStandardNormal")
 	raise NotImplementedError("RandomStandardNormal")
+
+def injectFaultFloor(a):
+	"Function to call injectFault on Floor"
+	# FIXME: Implement this functionality
+	logging.debug("Calling Operator Floor")
+
+	resOp = tf.floor(a)
+	sess = tf.Session()
+	res = sess.run(resOp)
+	res = condPerturb(Ops.FLOOR, res)
+	return res
+#	raise NotImplementedError("Floor")
 
 def injectFaultRefSwitch(a):
 	"Function to call injectFault on RefSwitch"
@@ -862,6 +865,17 @@ def injectFaultProd(a):
 	# FIXME: Implement this functionality
 	logging.debug("Calling Operator Prod")
 	raise NotImplementedError("Prod")
+
+def injectFaultSqueeze(a):
+	"Function to call injectFault on Squeee"
+	# FIXME: Implement this functionality
+	resOp = tf.squeeze(a)
+	sess = tf.Session()
+	res = sess.run(resOp)
+	return res
+
+#	logging.debug("Calling Operator Squeeze")
+#	raise NotImplementedError("Squeeze")
 
 def injectFaultUnique(a):
 	"Function to call injectFault on Unique"
@@ -1043,19 +1057,7 @@ def injectFaultAssignAdd(a):
 	# FIXME: Implement this functionality
 	logging.debug("Calling Operator AssignAdd")
 	raise NotImplementedError("AssignAdd")
-
-def injectFaultFloor(a):
-	"Function to call injectFault on Floor"
-	# FIXME: Implement this functionality
-	logging.debug("Calling Operator Floor")
-	raise NotImplementedError("Floor")
-
-def injectFaultSqueeze(a):
-	"Function to call injectFault on Squeeze"
-	# FIXME: Implement this functionality
-	logging.debug("Calling Operator Squeeze")
-	raise NotImplementedError("Squeeze")
-
+	
 ##### End of unimplemented functions ###################
 	
 # This is the generic "Catch-all" function - it should be last
@@ -1066,8 +1068,8 @@ def injectFaultGeneric(*inputs):
 	logging.debug("Calling generic fiFunc on " + str(inputs))
 	# Perturb the input and add it to the outpus
 	# FIXME: Should we NOT actually do the operation as well ??
-	# For now, we don't do any injection at all at this function
 
+	# For now, we don't do any injection at all at this function
 	for input in inputs:
 		outputs.append( input )
 	if logReturn: logging.debug("\tReturning " + str(outputs))
@@ -1181,7 +1183,6 @@ opTable = {
 			"AssignAdd" : injectFaultAssignAdd,
 			"Unknown": injectFaultGeneric,		# Last operation
 			# "Unknown": None			# For debugging purposes
-			"LRN" : injectFaultLRN,
-			"Elu" : injectFaultELU
+			"LRN" : injectLRN
 		}	
 
