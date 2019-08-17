@@ -380,8 +380,8 @@ def main(_):
     # Add the fault injection nodes to it
     fi = ti.TensorFI(sess, logLevel = 50, name = "convolutional", disableInjections=False)
     
-    # inject into one input
-    for i in range(1):
+    # inject into two inputs
+    for i in range(2):
       each = indexOfCorrectSample[i]
       newData = ( test_data[each].reshape(1,28,28,1) )
       newLab = ( test_labels[each].reshape(1) )
