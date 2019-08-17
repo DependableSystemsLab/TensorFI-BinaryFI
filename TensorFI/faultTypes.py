@@ -430,7 +430,7 @@ def binaryBitFlip(dtype, val):
 		sdcRate += (sdc_bound_0 + sdc_bound_1) /  float((len(indexOfBit_1)+len(indexOfBit_0))*len(val))
 
  		# initialize the value for performing FI on the next datapoint (either here or in the main program)
-		initBinaryInjection(isFirstTime=False) 	# this is done in the main program since you've to record the values before initializing it
+		# initBinaryInjection(isFirstTime=False) 	# this is done in the main program since you've to record the values before initializing it
 		indexOfInjectedData += 1 # index of next data to be injected
 
 
