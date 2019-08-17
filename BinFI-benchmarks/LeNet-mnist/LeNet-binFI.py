@@ -374,14 +374,14 @@ def main(_):
     newLab = []
 
     # save FI results into file, "eachRes" saves each FI result, "resFile" saves SDC rate
-    eachRes = open("lenet-binEach.csv", "a")
-    resFile = open('lenet-binFI.csv', "a")
+    eachRes = open("lenet-binEach.csv", "w")
+    resFile = open('lenet-binFI.csv', "w")
 
     # Add the fault injection nodes to it
     fi = ti.TensorFI(sess, logLevel = 50, name = "convolutional", disableInjections=False)
     
-    # inject into one input
-    for i in range(1):
+    # inject into two inputs
+    for i in range(2):
       each = indexOfCorrectSample[i]
       newData = ( test_data[each].reshape(1,28,28,1) )
       newLab = ( test_labels[each].reshape(1) )
@@ -400,13 +400,20 @@ def main(_):
 
         # if FI on the current data item, you might want to log the sdc bound for the bits of 0 or 1
         # (optional), if you just want to measure the SDC rate, you can access the variable of "ti.faultTypes.sdcRate"
-        if(ti.faultTypes.isDoneForCurData): 
+        if(ti.faultTypes.isDoneForCurData):  
           eachRes.write(`ti.faultTypes.sdc_bound_0` + "," + `ti.faultTypes.sdc_bound_1` + ",")
           # initialize the binary FI for next data item.
           ti.faultTypes.initBinaryInjection(isFirstTime=False)
           
+
         trial+=1
         print(i, trial)
+
+      injectedData = ti.injectFault.injectedData
+      data = open("data.csv", "a")
+      for each in injectedData:
+        data.write(`each` + ",")
+      data.write("\n")
 
       eachRes.write("\n")
       print("sdc", ti.faultTypes.sdcRate, "fi times: ", ti.faultTypes.fiTime)
