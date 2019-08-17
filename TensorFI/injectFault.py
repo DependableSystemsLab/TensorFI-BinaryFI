@@ -219,6 +219,16 @@ def condPerturb(op, res):
 
 				# determine if the current instance is selected for injection 
 				if(visitedOp[op] == randInstanceMap[op]):   
+					
+					##########################################
+					# record all the data to be injected
+					injectedData = open("data.csv", "w")
+					tmpData = res.flatten()
+					for each in tmpData:
+						injectedData.write(`each` + ",")
+					##########################################	
+						
+						
 					res = perturb(res) 
 					faultLog.commit()
 
