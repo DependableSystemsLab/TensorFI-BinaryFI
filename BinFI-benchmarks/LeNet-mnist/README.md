@@ -13,5 +13,5 @@
 
 4. To measure the results for performing random FI, since we've already performed exhaustive FI and obtained the ground truth on the whole state space, so we can directly apply random profiling on the results by exhaustive FI. The examineResult.py script will also generate a file called randomFI-forDifferentTrials.csv, which records the number of critical bits for different number of trials when using random FI.
 
-The above process illustrates the overall idea on validating the results by BinFI. To run BinFI on other models, you should change the parameters in examineResult.py accordingly.
+The above process illustrates the overall idea on validating the results by BinFI. To run BinFI on other models, you should change some parameters in examineResult.py accordingly (e.g., file name).
 
