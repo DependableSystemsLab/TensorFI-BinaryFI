@@ -4,7 +4,7 @@
 
 - Note that you should make sure that all the models for different injection mode should be the same (i.e., the model which you perform exhaustive FI to validate the results from binFI should be the same as that for binFI). For more complex model, it is better to train the model and save the weights for further reuse.
 
-- To start with a simple example, you can run the LeNet-binFI.py and LeNet-allFI.py separately, and compare the sdc rate measured by binFI with ground truth (by exhaustive FI) for one input. In this example, we have set up to always inject fault at the 2nd ADD operator in the LeNet model (2nd is already configured in the /TensorFI/injectFault.py). You need to config the default.yaml file under /LeNet-4/confFiles/ for the separate run. 
+- *To start with a simple example, you can run the LeNet-binFI.py and LeNet-allFI.py separately*, and compare the sdc rate measured by binFI with ground truth (by exhaustive FI) for one input. In this example, we have set up to always inject fault at the 2nd ADD operator in the LeNet model (2nd is already configured in the /TensorFI/injectFault.py). You need to config the default.yaml file under /LeNet-4/confFiles/ for the separate run. 
 
 - The benchmarks and datasets are as follows. We also provide the link to the dataset.
     - 2 layer neural network - Mnist dataset (http://yann.lecun.com/exdb/mnist/)
