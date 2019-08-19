@@ -171,12 +171,9 @@ def model():
 
     with tf.variable_scope('fully_connected') as scope:
         flat = tf.reshape(pool, [-1, 4 * 4 * 128/filterSize])
-
-        fc1 = tf.layers.dense(inputs=flat, units=1024, activation=tf.nn.relu) 
-        fc2 = tf.layers.dense(inputs=fc1, units=1024, activation=tf.nn.relu) 
-        fc3 = tf.layers.dense(inputs=fc2, units=_NUM_CLASSES, activation=tf.nn.relu) 
-
-        softmax = tf.nn.softmax(fc3) 
+        fc1 = tf.layers.dense(inputs=flat, units=1024, activation=tf.nn.relu)  
+        softmax = tf.layers.dense(inputs=fc1, units=_NUM_CLASSES) 
+ 
 
     y_pred_cls = tf.argmax(softmax, axis=1)
 
