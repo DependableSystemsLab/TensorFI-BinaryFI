@@ -280,7 +280,7 @@ if(isTrain):
     _BATCH_SIZE = 128
     _EPOCH = 30
     _CLASS_SIZE = 10
-    _SAVE_PATH = "./modelSaver/"
+    _SAVE_PATH = "./modelSaver/"    # this is the directory where you save your trained model
     if not os.path.exists:
         os.makedirs(_SAVE_PATH)
      
@@ -390,6 +390,8 @@ def main():
                     eachRes.write(`0` + ",")
                 else:
                     eachRes.write(`1` + ",")
+
+                print(i, totalFI)
 
             eachRes.write("\n")
             print("sdc:", sdcCount/totalFI, totalFI)

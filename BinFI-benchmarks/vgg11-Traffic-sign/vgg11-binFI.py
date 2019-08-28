@@ -1,12 +1,12 @@
-###
-### A VGG11 to work on German traffic sign dataset
-### Implementation from https://github.com/mohamedameen93/German-Traffic-Sign-Classification-Using-TensorFlow/blob/master/Traffic_Sign_Classifier.ipynb
-### Dataset is also available from the same site above
-###
-### Important: The dataset in the above site is stored in python pickle, using python 3
-### Currently TensorFI only supports python 2, so you need to use python 3 to load the .p file
-### And then using pickle in python 2 version to store the dataset again.
-### Please contact us if you need the train and test data available for python 2.
+"""
+A VGG11 to work on German traffic sign dataset
+Implementation from https://github.com/mohamedameen93/German-Traffic-Sign-Classification-Using-TensorFlow/blob/master/Traffic_Sign_Classifier.ipynb
+Dataset is also available from the same site above
+
+Important: The dataset in the above site is stored in python pickle, using python 3
+Currently TensorFI only supports python 2, so you need to use python 3 to load the .p file
+And then using pickle in python 2 version to store the dataset again. 
+"""
 
 
 
@@ -30,16 +30,14 @@ BATCHES_PER_EPOCH = 300
 
  
 ## Important, make sure the .p file can be loaded using pickle in python 2
-training_file = "./traffic-signs-data/2train.p" 
-testing_file = "./traffic-signs-data/2test.p"
+training_file = "Path_to_train_data" 
+testing_file = "Path_to_test_data"
 
 with open(training_file, mode='rb') as f:
     train = pickle.load(f) 
 with open(testing_file, mode='rb') as f:
     test = pickle.load(f)
-    
-# Load pickled data
-#train, test = load_traffic_sign_data('traffic-signs-data/train.p', 'traffic-signs-data/test.p')
+     
     
 X_train, y_train = train['features'], train['labels']
 X_test, y_test = test['features'], test['labels']
@@ -168,49 +166,97 @@ def max_pool_2x2(x):
     return tf.nn.max_pool(value=x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
 
-# network architecture definition
-def my_net(x, n_classes):
+# network structure
+def vgg(x, n_classes):
+        sigma = 0.1
+        mu = 0
+        # Layer 1 (Convolutional): Input = 32x32x1. Output = 32x32x32.
+        conv1_W = tf.Variable(tf.truncated_normal(shape=(3, 3, 1, 32), mean = mu, stddev = sigma))
+        conv1_b = tf.Variable(tf.zeros(32))
+        conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='SAME') + conv1_b
 
-    c1_out = 64
-    conv1_W = weight_variable(shape=(3, 3, 1, c1_out))
-    conv1_b = bias_variable(shape=(c1_out,))
-    conv1 = tf.nn.relu(conv2d(x, conv1_W) + conv1_b)
+        # ReLu Activation.
+        conv1 = tf.nn.relu(conv1)
 
-    pool1 = max_pool_2x2(conv1)
+        # Layer 2 (Convolutional): Input = 32x32x32. Output = 32x32x32.
+        conv2_W = tf.Variable(tf.truncated_normal(shape=(3, 3, 32, 32), mean = mu, stddev = sigma))
+        conv2_b = tf.Variable(tf.zeros(32))
+        conv2   = tf.nn.conv2d(conv1, conv2_W, strides=[1, 1, 1, 1], padding='SAME') + conv2_b
 
-    drop1 = tf.nn.dropout(pool1, keep_prob=keep_prob)
+        # ReLu Activation.
+        conv2 = tf.nn.relu(conv2)
 
-    c2_out = 128
-    conv2_W = weight_variable(shape=(3, 3, c1_out, c2_out))
-    conv2_b = bias_variable(shape=(c2_out,))
-    conv2 = tf.nn.relu(conv2d(drop1, conv2_W) + conv2_b)
+        # Layer 3 (Pooling): Input = 32x32x32. Output = 16x16x32.
+        conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+        conv2 = tf.nn.dropout(conv2, keep_prob)
 
-    pool2 = max_pool_2x2(conv2)
+        # Layer 4 (Convolutional): Input = 16x16x32. Output = 16x16x64.
+        conv3_W = tf.Variable(tf.truncated_normal(shape=(3, 3, 32, 64), mean = mu, stddev = sigma))
+        conv3_b = tf.Variable(tf.zeros(64))
+        conv3   = tf.nn.conv2d(conv2, conv3_W, strides=[1, 1, 1, 1], padding='SAME') + conv3_b
 
-    drop2 = tf.nn.dropout(pool2, keep_prob=keep_prob)
+        # ReLu Activation.
+        conv3 = tf.nn.relu(conv3)
 
+        # Layer 5 (Convolutional): Input = 16x16x64. Output = 16x16x64.
+        conv4_W = tf.Variable(tf.truncated_normal(shape=(3, 3, 64, 64), mean = mu, stddev = sigma))
+        conv4_b = tf.Variable(tf.zeros(64))
+        conv4   = tf.nn.conv2d(conv3, conv4_W, strides=[1, 1, 1, 1], padding='SAME') + conv4_b
 
-    drop1 = flatten(drop1)
-    drop2 = flatten(drop2)
+        # ReLu Activation.
+        conv4 = tf.nn.relu(conv4)
 
-    fc0 = tf.concat([drop1, drop2], 1)
+        # Layer 6 (Pooling): Input = 16x16x64. Output = 8x8x64.
+        conv4 = tf.nn.max_pool(conv4, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+        conv4 = tf.nn.dropout(conv4, keep_prob) # dropout
 
+        # Layer 7 (Convolutional): Input = 8x8x64. Output = 8x8x128.
+        conv5_W = tf.Variable(tf.truncated_normal(shape=(3, 3, 64, 128), mean = mu, stddev = sigma))
+        conv5_b = tf.Variable(tf.zeros(128))
+        conv5   = tf.nn.conv2d(conv4, conv5_W, strides=[1, 1, 1, 1], padding='SAME') + conv5_b
 
+        # ReLu Activation.
+        conv5 = tf.nn.relu(conv5)
 
+        # Layer 8 (Convolutional): Input = 8x8x128. Output = 8x8x128.
+        conv6_W = tf.Variable(tf.truncated_normal(shape=(3, 3, 128, 128), mean = mu, stddev = sigma))
+        conv6_b = tf.Variable(tf.zeros(128))
+        conv6   = tf.nn.conv2d(conv5, conv6_W, strides=[1, 1, 1, 1], padding='SAME') + conv6_b
 
-    fc1_out = 64
-    fc1_W = weight_variable(shape=(fc0._shape[1].value, fc1_out))
-    fc1_b = bias_variable(shape=(fc1_out,))
-    fc1 = tf.matmul(fc0, fc1_W) + fc1_b
+        # ReLu Activation.
+        conv6 = tf.nn.relu(conv6)
 
-    drop_fc1 = tf.nn.dropout(fc1, keep_prob=keep_prob)
+        # Layer 9 (Pooling): Input = 8x8x128. Output = 4x4x128.
+        conv6 = tf.nn.max_pool(conv6, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+        conv6 = tf.nn.dropout(conv6, keep_prob) # dropout
 
-    fc2_out = n_classes
-    fc2_W = weight_variable(shape=(drop_fc1._shape[1].value, fc2_out))
-    fc2_b = bias_variable(shape=(fc2_out,))
-    logits = tf.matmul(drop_fc1, fc2_W) + fc2_b
+        # Flatten. Input = 4x4x128. Output = 2048.
+        fc0   = tf.reshape(conv6, [-1,2048])
 
-    return logits
+        # Layer 10 (Fully Connected): Input = 2048. Output = 128.
+        fc1_W = tf.Variable(tf.truncated_normal(shape=(2048, 128), mean = mu, stddev = sigma))
+        fc1_b = tf.Variable(tf.zeros(128))
+        fc1   = tf.matmul(fc0, fc1_W) + fc1_b
+
+        # ReLu Activation.
+        fc1    = tf.nn.relu(fc1)
+        fc1    = tf.nn.dropout(fc1, keep_prob) # dropout
+
+        # Layer 11 (Fully Connected): Input = 128. Output = 128.
+        fc2_W  = tf.Variable(tf.zeros((128, 128)))
+        fc2_b  = tf.Variable(tf.zeros(128))
+        fc2    = tf.matmul(fc1, fc2_W) + fc2_b
+
+        # ReLu Activation.
+        fc2    = tf.nn.relu(fc2)
+        fc2    = tf.nn.dropout(fc2, keep_prob) # dropout
+
+        # Layer 12 (Fully Connected): Input = 128. Output = n_out.
+        fc3_W  = tf.Variable(tf.truncated_normal(shape=(128, n_classes), mean = mu, stddev = sigma))
+        fc3_b  = tf.Variable(tf.zeros(n_classes))
+        logits = tf.matmul(fc2, fc3_W) + fc3_b
+
+        return logits
 
 
 # placeholders
@@ -221,7 +267,7 @@ keep_prob = tf.placeholder(tf.float32)
 
 # training pipeline
 lr = 0.001
-logits = my_net(x, n_classes=n_classes)
+logits = vgg(x, n_classes=n_classes)
 cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y)
 loss_function = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate=lr)
@@ -232,6 +278,7 @@ train_step = optimizer.minimize(loss=loss_function)
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.cast(y, tf.int64))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+# evalute data in a batch, used for typical fault-free run
 def evaluate(X_data, y_data):
     
     num_examples = X_data.shape[0]
@@ -246,6 +293,7 @@ def evaluate(X_data, y_data):
     return total_accuracy / num_examples
 
 
+# evalute data one by one, used for typical FI, e.g., binary FI
 def evalEach(X_data, y_data):
 
 #    num_examples = X_data.shape[0]
@@ -269,6 +317,8 @@ with tf.Session() as sess:
     ### You need to first train the network, 
     train = True
     acy = 0
+
+    SAVE_PATH = 'checkpoints/traffic_sign_model.ckpt'   # directory for saving your trained model
 
     # train the network
     if(train):
@@ -296,16 +346,16 @@ with tf.Session() as sess:
             if(train_accuracy > acy): 
             # log current weights
                 print("save checkpoints")
-                checkpointer.save(sess, save_path='checkpoints/traffic_sign_model.ckpt')
+                checkpointer.save(sess, save_path= SAVE_PATH)
                 acy = train_accuracy
     # you can test the model after training
     else:
         # restore saved session with highest validation accuracy
-        checkpointer.restore(sess, 'checkpoints/traffic_sign_model.ckpt')
+        checkpointer.restore(sess, SAVE_PATH)
         
-        # save FI results into file, "eachRes" saves each FI result, "resFile" saves SDC rate
-        eachRes = open("traffic-binEach.csv", "a")
-        resFile = open("traffic-binFI.csv", "a")
+        # save FI results into file, "eachRes" saves each FI result, "resFile" saves SDC rate and FI trial
+        eachRes = open("vgg11-binEach.csv", "a")
+        resFile = open("vgg11-binFI.csv", "a")
         tX = X_test_norm[:1000, :, :, :]
         tY = y_test[:1000]
 

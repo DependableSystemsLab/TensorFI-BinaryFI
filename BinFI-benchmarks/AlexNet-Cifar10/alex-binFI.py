@@ -20,7 +20,7 @@ global isTrain
 global isTest
 
 
-# Train or test the model, you first need to train the model
+# Train or test the model, you first need to train the model.
 # The model will automatically download the dataset before training.
 isTest = False
 isTrain = True
@@ -111,7 +111,8 @@ def maybe_download_and_extract():
         os.remove(zip_cifar_10)
 
 def model():
-    filterSize = 8
+    filterSize = 8  # NOTE: to achive better performance, you might want to adjust this parameters to increase the num of neurons
+                    # On the meanwhile, this will increasing the time for doing exhaustive FI significantly.
     _IMAGE_SIZE = 32
     _IMAGE_CHANNELS = 3
     _NUM_CLASSES = 10
@@ -281,7 +282,7 @@ if(isTrain):
     _BATCH_SIZE = 128
     _EPOCH = 30
     _CLASS_SIZE = 10
-    _SAVE_PATH = "./modelSaver/"
+    _SAVE_PATH = "./modelSaver/"    # this is the directory where you save your trained model
     if not os.path.exists:
         os.makedirs(_SAVE_PATH)
      
@@ -353,8 +354,7 @@ def main():
         preds = sess.run(y_pred_cls, feed_dict={x: tx, y: ty})
         correct = (np.argmax(ty, axis=1) == preds)
         correctIndex = np.argwhere(correct == True)
-        correctIndex = correctIndex.flatten()
-        # correctIndex stores the index of inputs that can be correctly identified 
+        correctIndex = correctIndex.flatten()   # index of inputs that can be correctly identified 
 
         X = tx
         Y = ty 
@@ -376,6 +376,7 @@ def main():
             trial = 0
             # initiliaze for binary FI
             ti.faultTypes.initBinaryInjection()
+
             while(ti.faultTypes.isKeepDoingFI):
                 preds = sess.run(y_pred_cls, feed_dict={x: tx, y: ty}) 
                 acy =  (np.argmax(ty, axis=1) == preds)[0] 

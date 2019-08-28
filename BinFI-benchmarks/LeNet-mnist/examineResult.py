@@ -33,7 +33,7 @@ def binConv(file):
 		return res 
 
 
-	writes = open("binaryInjectedData.csv", "w")
+	writes = open("binaryInjectedData.csv", "w")	# write the injected data in binary expression
 
 	numOfInjectedData = 0 # this is the number of data within the operation, e.g., (2, 2, 2) = 8
 	numOfInjectedInput = 0 # this is the number of input we've evaluated, e.g., 10 in BinFI paper.
@@ -59,7 +59,7 @@ def binConv(file):
 
 # map the binFI results into the per-bit SDC case in a file, to be compared with all FI
 # E.g., for a data with 31-bit, how many of them are critical bits. Each data is expressed in 31 binary bit
-def binFI_map(numOfInjectedInput, numOfInjectedData, BinFIresFile):
+def getPerBit_SDC_byBinFI(numOfInjectedInput, numOfInjectedData, BinFIresFile):
 	# read the results from binFI. The odd-column is the critical bits from the bits of 0, even- for the bits of 1
 	# numOfInjectedData * 2 because we consider 0 and 1 bits for each data.
 	binRes = np.zeros((numOfInjectedInput,numOfInjectedData*2))
@@ -73,9 +73,9 @@ def binFI_map(numOfInjectedInput, numOfInjectedData, BinFIresFile):
 			binRes[index][i] = int(each[i])
 		index+=1
 
-	maps = open("binFIres-intoPerBit.csv", "w")
+	writePerBitSDC = open("binFIres-intoPerBit.csv", "w")	# write the per-bit SDC results into a file 
  
-	binData = open("binaryInjectedData.csv", "r")
+	binData = open("binaryInjectedData.csv", "r")	# read the injected values in binary
 	reader = csv.reader(binData)
 	dataIndex = 0
 	for each in reader: 
@@ -88,22 +88,22 @@ def binFI_map(numOfInjectedInput, numOfInjectedData, BinFIresFile):
 				if(i == '0'):
 					if(bit0 > 0):
 						# write "0" means this is a critical bits
-						maps.write("0" + ",") 
+						writePerBitSDC.write("0" + ",") 
 						bit0 -= 1
 					else:
-						maps.write("1" + ",") 
+						writePerBitSDC.write("1" + ",") 
 				elif(i == '1'):
 					if(bit1 > 0):
 						# write "0" means this is a critical bits
-						maps.write("0" + ",") 
+						writePerBitSDC.write("0" + ",") 
 						bit1 -= 1
 					else:
-						maps.write("1" + ",")  
+						writePerBitSDC.write("1" + ",")  
 		dataIndex += 1
-		maps.write("\n")
+		writePerBitSDC.write("\n")
 
 # compare the results from binFI and exhaustive FI, bit-by-bit
-def resComp(numOfInjectedInput, numOfInjectedData, exhaustiveFIresFile):
+def validateBinFIres(numOfInjectedInput, numOfInjectedData, exhaustiveFIresFile):
 	# read the results from binFI
 	binFI = open('binFIres-intoPerBit.csv', "r")
 	reader = csv.reader(binFI)
@@ -157,7 +157,7 @@ def ranFI(numOfInjectedData, canDuplicate, exhaustiveFIresFile):
 	groundTruthRes = open(exhaustiveFIresFile, "r")
 	data = csv.reader(groundTruthRes)
 
-	ranRes = open("randomFI-forDifferentTrials.csv", "w")
+	ranRes = open("randomFI-forDifferentTrials.csv", "w")	# write the results for random FI
 
 	cnt = 0 
 	for each in data: 
@@ -185,17 +185,20 @@ def ranFI(numOfInjectedData, canDuplicate, exhaustiveFIresFile):
 
 
  
+"NOTE: this script is written for the sample LeNet test, " 
+"you can check the results of BinFI on different models, by choosing different FileName parameters for you results"
 
+originalInjectedData = 'data.csv'	# this is the file containg the original injected data.
 
 # convert the injected data into binary expression
-numOfInjectedInput, numOfInjectedData =  binConv('data.csv')
+numOfInjectedInput, numOfInjectedData =  binConv(originalInjectedData)
 # map the binFI results into per-bit results for each data
-binFI_map(numOfInjectedInput, numOfInjectedData, BinFIresFile="lenet-binEach.csv")
+getPerBit_SDC_byBinFI(numOfInjectedInput, numOfInjectedData, BinFIresFile="lenet-binEach.csv")
 # compare binFI with the exhaustive FI (ground truth)
-resComp(numOfInjectedInput, numOfInjectedData, exhaustiveFIresFile="lenet-seqEach.csv")
+validateBinFIres(numOfInjectedInput, numOfInjectedData, exhaustiveFIresFile="lenet-seqEach.csv")
 
 
-
+# get the number of critical bits collected by random FI, in different FI trials
 ranFI(numOfInjectedData, canDuplicate = False, exhaustiveFIresFile="lenet-seqEach.csv")
 
 

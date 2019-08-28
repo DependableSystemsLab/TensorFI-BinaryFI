@@ -1,7 +1,12 @@
-### comma.ai steering model, model structure is in model.py
-### Model implementation based on https://github.com/commaai/research/blob/master/train_steering_model.py
-### Dataset available from https://github.com/SullyChen/driving-datasets  
+""" 
+comma.ai steering model, model structure is in model.py
 
+Model implementation based on https://github.com/commaai/research/blob/master/train_steering_model.py
+
+We modify the Dave model in https://github.com/SullyChen/Autopilot-TensorFlow to accommodate the comma.ai model
+
+Dataset available from https://github.com/SullyChen/driving-datasets 
+"""
 
 import tensorflow as tf
 import scipy.misc
@@ -14,9 +19,8 @@ import TensorFI as ti
 import datetime
 
 sess = tf.InteractiveSession()
-saver = tf.train.Saver()
-#### Important: make sure you've trained the model, refer to train.py
-saver.restore(sess, "save/model.ckpt")
+saver = tf.train.Saver() 
+saver.restore(sess, "save/model.ckpt")  # restore the trained model
 
 #img = scipy.misc.imread('steering_wheel_image.jpg',0)
 #rows,cols = img.shape
@@ -68,8 +72,8 @@ for i in index:
         totalFI += 1
         # we store the value of the deviation, so that we can use different thresholds to parse the results
         resFile.write(`abs(degrees - golden)` + ",")
-
-	print(i, totalFI)
+        print(i, totalFI)
+        
     resFile.write("\n")
 
     

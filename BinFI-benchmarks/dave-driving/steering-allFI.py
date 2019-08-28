@@ -15,9 +15,8 @@ import TensorFI as ti
 import datetime
 
 sess = tf.InteractiveSession()
-saver = tf.train.Saver()
-#### Important: make sure you've trained the model, refer to train.py
-saver.restore(sess, "save/model.ckpt")
+saver = tf.train.Saver()    
+saver.restore(sess, "save/model.ckpt")  # restore the trained model
 
 
 #img = cv2.imread('steering_wheel_image.jpg',0)
@@ -70,7 +69,7 @@ for i in index:
         totalFI += 1
         # we store the value of the deviation, so that we can use different thresholds to parse the results
         resFile.write(`abs(degrees - golden)` + ",")
-	print(i, totalFI)
+        print(i, totalFI)
     resFile.write("\n")
 
 

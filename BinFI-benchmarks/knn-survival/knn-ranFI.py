@@ -90,7 +90,7 @@ with tf.Session() as sess:
 
     # save FI results into file, "eachRes" saves each FI result, "resFile" saves SDC rate
     resFile = open('sknn-ranFI.csv', "a")
-    eachRes = open('each-ran.csv', "a")
+    eachRes = open('sknn-eachRanFI.csv', "a")
 
     totalFI = 4650 # specify the number of random FI trials you want to conduct
     for sampleIndex in range(10):

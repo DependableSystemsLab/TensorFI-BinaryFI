@@ -272,8 +272,8 @@ imgs = tf.placeholder(tf.float32, [None, 224, 224, 3])
 # log the pre-trained weights
 vgg = vgg16(imgs, 'vgg16_weights.npz', sess)
  
-# this is the label for the test images, we use this class.
-# However, you can choose other classes and change the label accordingly
+
+# Change Me: this is the label of your test image
 label = 'trailer truck, tractor trailer, trucking rig, rig, articulated lorry, semi'
 
 
@@ -283,21 +283,23 @@ fi = ti.TensorFI(sess, logLevel = 50, name = "convolutional", disableInjections=
 index = [0,2,3,5,6,8,9,12,15,17] 
 
 # save FI results into file, "eachRes" saves each FI result, "resFile" saves SDC rate
-resFile = open("traffic-binFI.csv", "a")
-eachRes = open("traffic-binEach.csv", "a")
+resFile = open("vgg16-binFI.csv", "a")
+eachRes = open("vgg16-binEach.csv", "a")
 
 for i in index:
 
     # Change me: load the images that you want to inject
-    img1 = imread("trailer-res/trailer-res/trailer-755used/" +`i` + ".png") 
+    img1 = imread("path_to_input_image") 
     img1 = scipy.misc.imresize(img1, [224,224,3]) 
  
     totalFI = 0. 
     # initiliaze for binary FI
     ti.faultTypes.initBinaryInjection()
+
     while(ti.faultTypes.isKeepDoingFI):
         prob = sess.run(vgg.probs, feed_dict={vgg.imgs: [img1]})[0]
         preds = (np.argsort(prob)[::-1])[0:5]
+        
         # you need to feedback the FI result to guide the next FI for binary search
         if(class_names[preds[0]] == label):
             # Fi does not result in SDC

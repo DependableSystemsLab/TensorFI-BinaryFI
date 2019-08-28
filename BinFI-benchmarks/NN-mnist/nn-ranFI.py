@@ -65,16 +65,6 @@ def neural_net(x):
     out_layer = tf.matmul(layer_2, weights['out']) + biases['out']
     return out_layer
 
-m1 = tf.matmul(X, weights['h1'])
-a1 = tf.add(m1, biases['b1'])
-
-m2 = tf.matmul(a1, weights['h2'])
-a2 = tf.add(m2, biases['b2'])
-
-m3 = tf.matmul(a2, weights['out'])
-a3 = m3 + biases['out']
-
-
 # Construct model
 logits = neural_net(X)
 prediction = tf.nn.softmax(logits)

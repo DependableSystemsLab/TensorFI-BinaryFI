@@ -247,7 +247,7 @@ def condPerturb(op, res):
 				# select one random op to be injected in the whole run
 				if(injectedOp == 0):
 					injectedOp = np.random.randint(low=1, high=totalInstance+1) 
-					faultLog.updateInjectedInstance(injectedOp, totalInstance)
+				faultLog.updateInjectedInstance(injectedOp, totalInstance)
 				# inject fault at the output of the operation
 				if(totalVistedOp == injectedOp):
 					res = perturb(res)

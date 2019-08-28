@@ -1,17 +1,15 @@
-###
-### A VGG11 to work on German traffic sign dataset
-### Implementation from https://github.com/mohamedameen93/German-Traffic-Sign-Classification-Using-TensorFlow/blob/master/Traffic_Sign_Classifier.ipynb
-### Dataset is also available from the same site above
-###
-### Important: The dataset in the above site is stored in python pickle, using python 3
-### Currently TensorFI only supports python 2, so you need to use python 3 to load the .p file
-### And then using pickle in python 2 version to store the dataset again.
-### Please contact us if you need the train and test data available for python 2.
+"""
+A VGG11 to work on German traffic sign dataset
+Implementation from https://github.com/mohamedameen93/German-Traffic-Sign-Classification-Using-TensorFlow/blob/master/Traffic_Sign_Classifier.ipynb
+Dataset is also available from the same site above
+
+Important: The dataset in the above site is stored in python pickle, using python 3
+Currently TensorFI only supports python 2, so you need to use python 3 to load the .p file
+And then using pickle in python 2 version to store the dataset again. 
+"""
 
 
-
-import os
-#os.environ["CUDA_VISIBLE_DEVICES"]="-1"    
+import os 
 import numpy as np
 import cv2 
 #import matplotlib.pyplot as plt 
@@ -28,17 +26,14 @@ EPOCHS = 300
 BATCHES_PER_EPOCH = 300
 
 ## Important, make sure the .p file can be loaded using pickle in python 2
-training_file = "./traffic-signs-data/2train.p" 
-testing_file = "./traffic-signs-data/2test.p"
+training_file = "Path_to_train_data" 
+testing_file = "Path_to_test_data"
 
 with open(training_file, mode='rb') as f:
     train = pickle.load(f) 
 with open(testing_file, mode='rb') as f:
     test = pickle.load(f)
 
-    
-# Load pickled data
-#train, test = load_traffic_sign_data('traffic-signs-data/train.p', 'traffic-signs-data/test.p')
     
 X_train, y_train = train['features'], train['labels']
 X_test, y_test = test['features'], test['labels']
@@ -278,6 +273,7 @@ train_step = optimizer.minimize(loss=loss_function)
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.cast(y, tf.int64))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+# evalute data in a batch, used for typical fault-free run
 def evaluate(X_data, y_data):
     
     num_examples = X_data.shape[0]
@@ -292,6 +288,7 @@ def evaluate(X_data, y_data):
     return total_accuracy / num_examples
 
 
+# evalute data one by one, used for typical FI, e.g., binary FI
 def evalEach(X_data, y_data):
 
 #    num_examples = X_data.shape[0]
@@ -315,6 +312,7 @@ with tf.Session() as sess:
     train = True
     acy = 0
 
+    SAVE_PATH = 'checkpoints/traffic_sign_model.ckpt'   # directory for saving your trained model
     # train the network
     if(train):
         sess.run(tf.global_variables_initializer())
@@ -338,18 +336,18 @@ with tf.Session() as sess:
                 val_accuracy = evaluate(X_test_norm, y_test)
                 print('Train Accuracy = {:.3f} - Validation Accuracy: {:.3f}'.format(train_accuracy, val_accuracy))
  
-            if(True): 
-            # log current weights
+            if(train_accuracy > acy):   # save the model only if it achives better performance 
+                # log current weights
                 print("save checkpoints")
-                checkpointer.save(sess, save_path='checkpoints/traffic_sign_model.ckpt')
-#                acy = train_accuracy
+                checkpointer.save(sess, save_path=SAVE_PATH)
+                acy = train_accuracy
     # you can test the model after training
-    else:
-        # restore saved session with highest validation accuracy
-        checkpointer.restore(sess, 'checkpoints/traffic_sign_model.ckpt')
+    else: 
+        checkpointer.restore(sess, SAVE_PATH)   # restore the trained model
         
         # save FI results into file, "eachRes" saves each FI result
-        eachRes = open("traffic-seqEach.csv", "a")
+        eachRes = open("vgg11-seqEach.csv", "a")
+
         tX = X_test_norm[:1000, :, :, :]
         tY = y_test[:1000]
 

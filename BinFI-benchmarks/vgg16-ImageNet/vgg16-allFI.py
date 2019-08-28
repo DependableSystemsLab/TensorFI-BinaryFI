@@ -275,6 +275,7 @@ imgs = tf.placeholder(tf.float32, [None, 224, 224, 3])
 vgg = vgg16(imgs, 'vgg16_weights.npz', sess)
 
 
+# Change Me: this is the label of your test image
 label = 'trailer truck, tractor trailer, trucking rig, rig, articulated lorry, semi'
 
 
@@ -282,12 +283,12 @@ fi = ti.TensorFI(sess, logLevel = 50, name = "convolutional", disableInjections=
 index = [0,2,3,5,6,8,9,12,15,17] 
  
 # save FI results into file, "eachRes" saves each FI result, "clsRes" saves each predicted class
-eachRes = open("imgnet-seqEach.csv", "a")
-clsRes = open("imgnet-seqEachCls.csv", "a")
+eachRes = open("vgg16-seqEach.csv", "a")
+clsRes = open("vgg16-seqEachCls.csv", "a")
 for i in index:
 
     # Change me: load the images that you want to inject
-    img1 = imread("trailer-res/trailer-res/trailer-755used/" +`i` + ".png") 
+    img1 = imread("path_to_input_image") 
     img1 = scipy.misc.imresize(img1, [224,224,3]) 
 
     # initiliaze for exhaustive FI

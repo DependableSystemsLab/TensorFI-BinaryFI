@@ -13,9 +13,8 @@ import time
 import TensorFI as ti
 import datetime
 sess = tf.InteractiveSession()
-saver = tf.train.Saver()
-#### Important: make sure you've trained the model, refer to train.py
-saver.restore(sess, "save/model.ckpt")
+saver = tf.train.Saver() 
+saver.restore(sess, "save/model.ckpt")  # restore the trained model
 
 #img = scipy.misc.imread('steering_wheel_image.jpg',0)
 #rows,cols = img.shape
@@ -25,9 +24,10 @@ fi = ti.TensorFI(sess, logLevel = 50, name = "convolutional", disableInjections=
 
 # threshold deviation to define SDC
 sdcThreshold = 60
+
 # save FI results into file, "eachRes" saves each FI result, "resFile" saves SDC rate
-resFile = open(`sdcThreshold` + "autopilot-binFI.csv", "a") 
-eachRes = open(`sdcThreshold` + "each-binFI.csv", "a")
+resFile = open(`sdcThreshold` + "-statistic-binFI.csv", "a") 
+eachRes = open(`sdcThreshold` + "-each-binFI.csv", "a")
 
 # inputs to be injected
 index = [20, 486, 992, 1398, 4429, 5259, 5868, 6350, 6650, 7771]
@@ -83,7 +83,8 @@ for i in index:
             eachRes.write(`ti.faultTypes.sdc_bound_0` + "," + `ti.faultTypes.sdc_bound_1` + ",")
             # Important: initialize the binary FI for next data item.
             ti.faultTypes.initBinaryInjection(isFirstTime=False)
-    
+
+        print(i, totalFI)
 
     resFile.write(`ti.faultTypes.sdcRate` + "," + `ti.faultTypes.fiTime` + "\n")
     print(ti.faultTypes.sdcRate , "fi time: ", ti.faultTypes.fiTime) 

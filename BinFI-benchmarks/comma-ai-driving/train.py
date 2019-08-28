@@ -4,7 +4,7 @@ from tensorflow.core.protobuf import saver_pb2
 import driving_data
 import model
 
-LOGDIR = './save'
+LOGDIR = './save' # this is the directory saving your trained model
 
 sess = tf.InteractiveSession()
 
