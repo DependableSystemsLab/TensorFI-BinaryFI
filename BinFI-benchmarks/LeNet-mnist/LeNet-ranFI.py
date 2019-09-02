@@ -149,12 +149,15 @@ def main(_):
     test_labels_filename = maybe_download('t10k-labels-idx1-ubyte.gz')
 
     # Extract it into numpy arrays.
-    train_data = extract_data(train_data_filename, 10000)
-    train_labels = extract_labels(train_labels_filename, 10000)
+    train_data = extract_data(train_data_filename, 1000)
+    train_labels = extract_labels(train_labels_filename, 1000)
 
-    test_batch = 1
+    test_batch = 64
     test_data = extract_data(test_data_filename, test_batch)
     test_labels = extract_labels(test_labels_filename, test_batch) 
+
+
+
 
 
     # Generate a validation set.
@@ -184,6 +187,7 @@ def main(_):
 
 
   depth1 = 2
+
   conv1_weights = tf.Variable(
                               tf.truncated_normal([5, 5, NUM_CHANNELS, depth1],  # 5x5 filter, depth 32.
                                                   stddev=0.1,
@@ -222,10 +226,9 @@ def main(_):
     # the same size as the input). Note that {strides} is a 4D array whose
     # shape matches the data layout: [image index, y, x, depth].
     # conv output : (samples, rows, cols, channels)
-    a = [1 ,1 ,1 ,1]
     conv = tf.nn.conv2d(data,
                         conv1_weights,
-                        a,
+                        strides=[1, 1, 1, 1],
                         padding='SAME')
     # Bias and rectified linear non-linearity.
     relu = tf.nn.relu(tf.nn.bias_add(conv, conv1_biases))
@@ -357,8 +360,6 @@ def main(_):
             eval_in_batches(validation_data, sess), validation_labels))
         sys.stdout.flush()
         '''
-
-
     # Finally print the result!  
 
     # we use the inputs that can be correctly identified by the model for FI
@@ -389,7 +390,7 @@ def main(_):
       newLab = ( test_labels[each].reshape(1) )
 
 
-      fiCount = 1
+      fiCount = 100
       sdcCount = 0.
       for j in range(fiCount):
         test_error, _ = error_rate(eval_in_batches(newData, sess), newLab, True) 
@@ -399,7 +400,8 @@ def main(_):
           eachRes.write(`0`+",")
         else:
           eachRes.write(`1` + ",")
- 
+        print(i, j, "test error ", test_error)
+
       eachRes.write("\n")
       print("sdc:", sdcCount/fiCount)
       resFile.write(`sdcCount/fiCount` + "," + `fiCount` + "\n")
