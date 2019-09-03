@@ -387,9 +387,10 @@ def main(_):
       newLab = ( test_labels[each].reshape(1) )
 
       totalFI = 0.
-      sdcCount = 0.
-      # initiliaze for exhaustive FI
-      ti.faultTypes.sequentialFIinit()
+      sdcCount = 0. 
+
+      ti.faultTypes.sequentialFIinit()  # initialize for exhaustive FI; NOTE: Include this in your program before running inference
+
       while(ti.faultTypes.isKeepDoingFI):
         test_error , _ = error_rate(eval_in_batches(newData, sess), newLab, True) 
         totalFI += 1

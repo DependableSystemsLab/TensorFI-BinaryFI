@@ -387,17 +387,19 @@ def main(_):
       newLab = ( test_labels[each].reshape(1) )
   
       trial = 0
-      # initiliaze for binary FI
-      ti.faultTypes.initBinaryInjection()
+      
+      ti.faultTypes.initBinaryInjection() # initiliaze for binary FI. NOTE: Include this in your program before running inference
+
       while(ti.faultTypes.isKeepDoingFI):
         test_error , _ = error_rate(eval_in_batches(newData, sess), newLab, True)  
         # you need to feedback the FI result to guide the next FI for binary search
         if(test_error == 100.): 
           # FI does not result in SDC
-          ti.faultTypes.sdcFromLastFI = True
+          ti.faultTypes.sdcFromLastFI = True  # Feedback for next binary splitting. NOTE: Include this in your program
         else:
-          ti.faultTypes.sdcFromLastFI = False
+          ti.faultTypes.sdcFromLastFI = False # Feedback for next binary splitting. NOTE: Include this in your program
 
+        # NOTE: include the below if section in your program
         # if FI on the current data item, you might want to log the sdc bound for the bits of 0 or 1
         # (optional), if you just want to measure the SDC rate, you can access the variable of "ti.faultTypes.sdcRate"
         if(ti.faultTypes.isDoneForCurData):  
@@ -409,7 +411,7 @@ def main(_):
         trial+=1
         print(i, trial)
 
-      injectedData = ti.injectFault.injectedData
+      injectedData = ti.injectFault.injectedData  # collect the data that has been injected, for validation
       data = open("data.csv", "a")
       for each in injectedData:
         data.write(`each` + ",")
