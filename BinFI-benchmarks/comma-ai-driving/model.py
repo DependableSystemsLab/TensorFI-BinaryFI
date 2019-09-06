@@ -22,10 +22,7 @@ x_image = x
 keep_prob = 0.
 
 #first convolutional layer
-conv1 = tf.layers.conv2d(
-    # size of the model
-    #####   our claim is that Rambo does not provide tensorflow version. And it is the combination of nvidia model
-    ####   and comma ai model. We implement both.
+conv1 = tf.layers.conv2d( 
     x_image,
     filters=16,
     kernel_size=(8, 8),
