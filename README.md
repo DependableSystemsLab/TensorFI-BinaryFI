@@ -4,11 +4,7 @@ This repo is based on TensorFI, a fault injector for TensorFlow applications wri
 
 ***How to run***
 
-The major difference of this repo with TensorFI is that we provide binary injection mode (in /TensorFI/faultTypes.py). You can use this feature by configuring the config file accordingly. The installation and step to run the tool is the same as that for TensorFI. We provide TensorFI-BinaryFI in a pypi package, you should install it using pip before running BinFI:
-
-```
-pip install TensorFI-BinaryFI
-```
+The major difference of this repo with TensorFI is that we provide binary injection mode (in /TensorFI/faultTypes.py). You can use this feature by configuring the config file accordingly. The installation and step to run the tool is the same as that for TensorFI. You can install TensorFI-BinaryFI by running the Install.sh (which will install TensorFI-BinaryFI in a virtual environment) OR by pip install (pip install TensorFI-BinaryFI).
 
 We provide a detailed example in /BinFI-benchmarks/LeNet-4/ (with instructions), where you can try running binary FI and exhaustive FI respectively. NOTE: Running these two FI approaches require modification to the TF program and config file. You can modify your own program following the LeNet example. A general way for using BinFI is as follows:
 
