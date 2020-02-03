@@ -23,7 +23,7 @@ conda update conda
 conda create -n tensorfi python=2.7 anaconda
 conda install -n tensorfi scikit-learn   
 conda install -n tensorfi yaml
-conda install -n tensorfi tensorflow
+conda install -n tensorfi tensorflow=1.14
 
 
 ###

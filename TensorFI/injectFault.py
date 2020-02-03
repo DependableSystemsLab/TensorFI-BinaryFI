@@ -3,8 +3,7 @@
 
 import tensorflow as tf
 import numpy as np
-import logging
-import conv2d
+import logging 
 from fiConfig import * 
 from fiLog import *
 from threading import current_thread

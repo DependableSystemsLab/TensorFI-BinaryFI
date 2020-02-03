@@ -1,7 +1,12 @@
 import csv
 import pandas
 import numpy as np 
- 
+
+
+global totalCriticalBit
+
+totalCriticalBit = []
+
 # convert the injected data into binary format
 def binConv(file):
 
@@ -144,16 +149,33 @@ def validateBinFIres(numOfInjectedInput, numOfInjectedData, exhaustiveFIresFile)
 				fp += 1
 			elif(allRes[i][j] == 0 and binRes[i][j] == 1):
 				fn+=1
-
+		
+		print("=============== new data entry for binary FI results: ===============")
 		print('BinFI recalls: %.2f, BinFI precision: %.2f, total critical bits: %d '  
-				%(  float(totalBit-fn)/totalBit, float(fp)/totalBit, totalBit) )
+				%(  float(totalBit-fn)/totalBit, 1-float(fp)/totalBit, totalBit) )
 
+		global totalCriticalBit
+		totalCriticalBit.append(totalBit)
+
+
+# read the num of trial for binary FI
+def readBinFI_trial(fileName):
+	binFIRes = open(fileName, "r")
+	data = csv.reader(binFIRes)
+	trial = []
+	for each in data:
+		trial.append( int(each[1]) )
+	return trial	
 
 # perform randomFI, since we've the ground truth from exhaustive FI already,
 # we can "simulate" random FI on the ground truth table
 # this function is to collect the cumulative critical bits identified for given FI trials
 def ranFI(numOfInjectedData, canDuplicate, exhaustiveFIresFile):
 
+	global totalCriticalBit 
+
+	binFI_trial = readBinFI_trial("lenet-binFI.csv") 
+	
 	groundTruthRes = open(exhaustiveFIresFile, "r")
 	data = csv.reader(groundTruthRes)
 
@@ -161,13 +183,14 @@ def ranFI(numOfInjectedData, canDuplicate, exhaustiveFIresFile):
 
 	cnt = 0 
 	for each in data: 
-		visitedInd = []
+		print("=============== new data entry for random FI results: ===============")
+		visitedInd = [] # index of injected bit (random injection)
 
 		allRes = each[:-1] 
 		allRes = np.asarray(allRes)
 		allRes = allRes.astype(float)
   
-		criticalBit = 0
+		criticalBit = 0.
 		for i in range(numOfInjectedData*31):
 			# random index of the injected data
 			numInd = np.random.randint(low=0 , high = numOfInjectedData)
@@ -178,10 +201,14 @@ def ranFI(numOfInjectedData, canDuplicate, exhaustiveFIresFile):
 				criticalBit+=1
 			visitedInd.append(numInd*31 + bitInd)
 			
-
 			ranRes.write(`criticalBit` + ",")
+
+			if (i+1)==numOfInjectedData*31 or (i+1) == numOfInjectedData*31/2 or (i+1) == numOfInjectedData*31/4 or (i+1) == binFI_trial[cnt] or (i+1) == binFI_trial[cnt]/2 or (i+1) == binFI_trial[cnt]/4:
+			    	print "num of random FI trial: ", i, "recall rate: ", criticalBit / totalCriticalBit[cnt] 
+				a = 1
+		
 		ranRes.write("\n") 
-		cnt+=1
+		cnt+=1 
 
 
  
@@ -200,7 +227,6 @@ validateBinFIres(numOfInjectedInput, numOfInjectedData, exhaustiveFIresFile="len
 
 # get the number of critical bits collected by random FI, in different FI trials
 ranFI(numOfInjectedData, canDuplicate = False, exhaustiveFIresFile="lenet-seqEach.csv")
-
 
 
 
