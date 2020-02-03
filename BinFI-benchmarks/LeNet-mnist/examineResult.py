@@ -135,7 +135,7 @@ def validateBinFIres(numOfInjectedInput, numOfInjectedData, exhaustiveFIresFile)
 		allRes[index] = tmp
 		index +=1
  
-
+	binFI_trial = readBinFI_trial("lenet-binFI.csv")
 	for i in range(numOfInjectedInput):
 		fp = 0 
 		fn = 0
@@ -151,8 +151,8 @@ def validateBinFIres(numOfInjectedInput, numOfInjectedData, exhaustiveFIresFile)
 				fn+=1
 		
 		print("=============== new data entry for binary FI results: ===============")
-		print('BinFI recalls: %.2f, BinFI precision: %.2f, total critical bits: %d '  
-				%(  float(totalBit-fn)/totalBit, 1-float(fp)/totalBit, totalBit) )
+		print('BinFI recalls: %.2f, BinFI precision: %.2f, total critical bits: %d, FI trial for BinFI: %d, '  
+				%(  float(totalBit-fn)/totalBit, 1-float(fp)/totalBit, totalBit, binFI_trial[i] ))
 
 		global totalCriticalBit
 		totalCriticalBit.append(totalBit)
@@ -209,7 +209,7 @@ def ranFI(numOfInjectedData, canDuplicate, exhaustiveFIresFile):
 		
 		ranRes.write("\n") 
 		cnt+=1 
-
+ 
 
  
 "NOTE: this script is written for the sample LeNet test, " 
@@ -227,6 +227,10 @@ validateBinFIres(numOfInjectedInput, numOfInjectedData, exhaustiveFIresFile="len
 
 # get the number of critical bits collected by random FI, in different FI trials
 ranFI(numOfInjectedData, canDuplicate = False, exhaustiveFIresFile="lenet-seqEach.csv")
+
+
+
+
 
 
 
