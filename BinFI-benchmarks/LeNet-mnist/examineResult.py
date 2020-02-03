@@ -151,7 +151,7 @@ def validateBinFIres(numOfInjectedInput, numOfInjectedData, exhaustiveFIresFile)
 				fn+=1
 		
 		print("=============== new data entry for binary FI results: ===============")
-		print('BinFI recalls: %.2f, BinFI precision: %.2f, total critical bits: %d, FI trial for BinFI: %d, '  
+		print('BinFI recall rate: %.2f, BinFI precision: %.2f, total critical bits: %d, FI trial for BinFI: %d, '  
 				%(  float(totalBit-fn)/totalBit, 1-float(fp)/totalBit, totalBit, binFI_trial[i] ))
 
 		global totalCriticalBit
@@ -204,7 +204,7 @@ def ranFI(numOfInjectedData, canDuplicate, exhaustiveFIresFile):
 			ranRes.write(`criticalBit` + ",")
 
 			if (i+1)==numOfInjectedData*31 or (i+1) == numOfInjectedData*31/2 or (i+1) == numOfInjectedData*31/4 or (i+1) == binFI_trial[cnt] or (i+1) == binFI_trial[cnt]/2 or (i+1) == binFI_trial[cnt]/4:
-			    	print "num of random FI trial: ", i, "recall rate: ", criticalBit / totalCriticalBit[cnt] 
+			    	print "num of random FI trial: ", i, " Recall rate: ", criticalBit / totalCriticalBit[cnt] 
 				a = 1
 		
 		ranRes.write("\n") 
