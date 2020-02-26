@@ -380,46 +380,63 @@ def main(_):
     # Add the fault injection nodes to it
     fi = ti.TensorFI(sess, logLevel = 50, name = "convolutional", disableInjections=False)
     
+
+
+    #print( ti.injectFault.fiConf.getInstance("ADD") )
+    # get the list of target instance
+    targetInstance = ti.injectFault.fiConf.getTargetInstance()
+    print( targetInstance )
+	
     # inject into two inputs
     for i in range(2):
       each = indexOfCorrectSample[i]
       newData = ( test_data[each].reshape(1,28,28,1) )
       newLab = ( test_labels[each].reshape(1) )
   
-      trial = 0
-      
-      ti.faultTypes.initBinaryInjection() # initiliaze for binary FI. NOTE: Include this in your program before running inference
 
-      while(ti.faultTypes.isKeepDoingFI):
-        test_error , _ = error_rate(eval_in_batches(newData, sess), newLab, True)  
-        # you need to feedback the FI result to guide the next FI for binary search
-        if(test_error == 100.): 
-          # FI does not result in SDC
-          ti.faultTypes.sdcFromLastFI = True  # Feedback for next binary splitting. NOTE: Include this in your program
-        else:
-          ti.faultTypes.sdcFromLastFI = False # Feedback for next binary splitting. NOTE: Include this in your program
+      # conduct FI on each target instance
+      for eachInstance in targetInstance:
 
-        # NOTE: include the below if section in your program
-        # if FI on the current data item, you might want to log the sdc bound for the bits of 0 or 1
-        # (optional), if you just want to measure the SDC rate, you can access the variable of "ti.faultTypes.sdcRate"
-        if(ti.faultTypes.isDoneForCurData):  
-          eachRes.write(`ti.faultTypes.sdc_bound_0` + "," + `ti.faultTypes.sdc_bound_1` + ",")
-          # initialize the binary FI for next data item.
-          ti.faultTypes.initBinaryInjection(isFirstTime=False)
-          
 
-        trial+=1
-        print(i, trial)
 
-      injectedData = ti.injectFault.injectedData  # collect the data that has been injected, for validation
-      data = open("data.csv", "a")
-      for each in injectedData:
-        data.write(`each` + ",")
-      data.write("\n")
+        trial = 0
+        
+        ti.faultTypes.initBinaryInjection() # initiliaze for binary FI. NOTE: Include this in your program before running inference
 
-      eachRes.write("\n")
-      print("sdc", ti.faultTypes.sdcRate, "fi times: ", ti.faultTypes.fiTime)
-      resFile.write(`ti.faultTypes.sdcRate` + "," + `ti.faultTypes.fiTime` + "\n")
+        while(ti.faultTypes.isKeepDoingFI):
+
+	  ti.injectFault.injectedOp = eachInstance
+
+
+          test_error , _ = error_rate(eval_in_batches(newData, sess), newLab, True)  
+          # you need to feedback the FI result to guide the next FI for binary search
+          if(test_error == 100.): 
+            # FI does not result in SDC
+            ti.faultTypes.sdcFromLastFI = True  # Feedback for next binary splitting. NOTE: Include this in your program
+          else:
+            ti.faultTypes.sdcFromLastFI = False # Feedback for next binary splitting. NOTE: Include this in your program
+
+          # NOTE: include the below if section in your program
+          # if FI on the current data item, you might want to log the sdc bound for the bits of 0 or 1
+          # (optional), if you just want to measure the SDC rate, you can access the variable of "ti.faultTypes.sdcRate"
+          if(ti.faultTypes.isDoneForCurData):  
+            eachRes.write(`ti.faultTypes.sdc_bound_0` + "," + `ti.faultTypes.sdc_bound_1` + ",")
+            # initialize the binary FI for next data item.
+            ti.faultTypes.initBinaryInjection(isFirstTime=False)
+            
+
+          trial+=1
+          print(i, trial, "instance: ", eachInstance)
+
+        injectedData = ti.injectFault.injectedData  # collect the data that has been injected, for validation
+        data = open("data.csv", "a")
+        for each in injectedData:
+          data.write(`each` + ",")
+        data.write("\n")
+
+        eachRes.write("\n")
+        print("sdc", ti.faultTypes.sdcRate, "fi times: ", ti.faultTypes.fiTime)
+        resFile.write(`ti.faultTypes.sdcRate` + "," + `ti.faultTypes.fiTime` + "\n")
 
 
     # Make the log files in TensorBoard	

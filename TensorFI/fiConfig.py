@@ -79,6 +79,7 @@ class Fields(Enum):
 	SkipCount = "SkipCount"
 	Instances = "Instances"
 	InjectMode = "InjectMode"
+	TargetInstance = "TargetInstance"
 # End of Fields
 
 # These are the fault configuration functions
@@ -165,6 +166,11 @@ class FIConfig(object):
 		return self.opInstance[ op ] 			
 
 
+	def getTargetInstance(self):
+		"Retreive the list of target instance of the op for injection"
+		return self.targetInstance
+
+
 	def __str__(self):
 		"Convert this object to a astring representation for printing"
 		res = [ "FIConfig: {" ]
@@ -224,6 +230,12 @@ class FIConfig(object):
 					(opType, instance) = element.split('=')
 					self.instanceConfigOp(opType.rstrip(), instance.lstrip())
 					self.totalInstance += int(instance.lstrip())
+
+
+		# configure the list of target instance for injection
+		self.targetInstance = []
+		if fiParams.has_key(Fields.TargetInstance.value):
+			self.targetInstance = fiParams[ Fields.TargetInstance.value ]
 
 
 		# Confligre the seed value if one is specified

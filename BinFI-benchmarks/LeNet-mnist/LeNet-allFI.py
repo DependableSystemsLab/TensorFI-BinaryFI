@@ -380,32 +380,44 @@ def main(_):
     # Add the fault injection nodes to it
     fi = ti.TensorFI(sess, logLevel = 50, name = "convolutional", disableInjections=False)
     
+
+    targetInstance = ti.injectFault.fiConf.getTargetInstance()
+
     # inject into two inputs
     for i in range(2):
-      each = indexOfCorrectSample[i]
-      newData = ( test_data[each].reshape(1,28,28,1) )
-      newLab = ( test_labels[each].reshape(1) )
 
-      totalFI = 0.
-      sdcCount = 0. 
+      # inject faults into data at target instance (operator)
+      for eachInstance in targetInstance:
 
-      ti.faultTypes.sequentialFIinit()  # initialize for exhaustive FI; NOTE: Include this in your program before running inference
+        each = indexOfCorrectSample[i]
+        newData = ( test_data[each].reshape(1,28,28,1) )
+        newLab = ( test_labels[each].reshape(1) )
 
-      while(ti.faultTypes.isKeepDoingFI):
-        test_error , _ = error_rate(eval_in_batches(newData, sess), newLab, True) 
-        totalFI += 1
-        # FI results in SDC
-        if(test_error == 100.):
-          sdcCount += 1
-          eachRes.write(`0` + ",")
-        else:
-          eachRes.write(`1` + ",")
+        totalFI = 0.
+        sdcCount = 0. 
 
-        print("input:", i, " num of FI:", totalFI, " error:", test_error)
+        ti.faultTypes.sequentialFIinit()  # initialize for exhaustive FI; NOTE: Include this in your program before running inference
 
-      eachRes.write("\n")
-      print("sdc:", sdcCount/totalFI, " FI time:", totalFI)
-      resFile.write(`sdcCount/totalFI` + "," + `totalFI` + "\n")
+        while(ti.faultTypes.isKeepDoingFI):
+
+          # specify the instance to inject
+          ti.injectFault.injectedOp = eachInstance
+
+          
+          test_error , _ = error_rate(eval_in_batches(newData, sess), newLab, True) 
+          totalFI += 1
+          # FI results in SDC
+          if(test_error == 100.):
+            sdcCount += 1
+            eachRes.write(`0` + ",")
+          else:
+            eachRes.write(`1` + ",")
+
+          print("input:", i, " num of FI:", totalFI, " error:", test_error, "instance: ", eachInstance)
+
+        eachRes.write("\n")
+        print("sdc:", sdcCount/totalFI, " FI time:", totalFI)
+        resFile.write(`sdcCount/totalFI` + "," + `totalFI` + "\n")
 
  
 

@@ -240,6 +240,8 @@ def condPerturb(op, res):
 				# refer the global variable for memorizing the order of the current op
 				global totalVistedOp
 				global injectedOp
+
+
 				# get the amount of total op
 				totalInstance = fiConf.totalInstance
 				totalVistedOp += 1
@@ -249,6 +251,9 @@ def condPerturb(op, res):
 				faultLog.updateInjectedInstance(injectedOp, totalInstance)
 				# inject fault at the output of the operation
 				if(totalVistedOp == injectedOp):
+					global injectedData 
+					injectedData = res.flatten()
+				
 					res = perturb(res)
 					faultLog.commit()
 				# current run has finished, re-initialize the visit table for the next run (optional)
