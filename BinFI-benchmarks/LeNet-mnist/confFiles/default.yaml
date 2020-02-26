@@ -60,31 +60,32 @@ Instances:
 # The following lists the operators in the LeNet model, you can specify which operators to inject
 
 # Instance starts from index 1 (14 instances in total)
-# CONV2D (1, 28, 28, 2) - dimension of the data in the operator is also given, the larger the more data
-# BIASADD (1, 28, 28, 2)
-# RELU (1, 28, 28, 2)
-# CMAXPOOL (1, 14, 14, 2)
-# CONV2D (1, 14, 14, 2)
-# BIASADD (1, 14, 14, 2)
-# RELU (1, 14, 14, 2)
-# MAXPOOL (1, 7, 7, 2)
-# RESHAPE (1, 98)
-# MATMUL (1, 32)
-# ADD (1, 32)
-# RELU (1, 32)
-# MATMUL (1, 10)
-# ADD (1, 10)
+# 1. CONV2D (1, 28, 28, 2) - dimension of the data in the operator is also given, the larger the more data
+# 2. BIASADD (1, 28, 28, 2)
+# 3. RELU (1, 28, 28, 2)
+# 4. CMAXPOOL (1, 14, 14, 2)
+# 5. CONV2D (1, 14, 14, 2)
+# 6. BIASADD (1, 14, 14, 2)
+# 7. RELU (1, 14, 14, 2)
+# 8. MAXPOOL (1, 7, 7, 2)
+# 9. RESHAPE (1, 98)
+# 10. MATMUL (1, 32)
+# 11. ADD (1, 32)
+# 12. RELU (1, 32)
+# 13. MATMUL (1, 10)
+# 14. ADD (1, 10)
 
-# Specify a list of target instance for injection
-TargetInstance: [13,14]
+# Specify a list of target instance for injection, and the tool will inject faults into multiple operator
+# For this, you need to choose the "oneFaultPerRun" mode.
+TargetInstance: [13,14]  # in the current setting, in will inject the 13th operator (MATMUL) and the 14th (ADD)
 
 
 # There are three inject mode:
 # There are 3 ways to determine HOW to select an operation for injection"
 # 1) Using error rate to determine the probability of each opertaor to be injected " 
 # 2) Profiling the instance of each operation so that each operation will be injected for ONCE only" 
-# 3) Perform random injection over one op per run". In this mode, the 'ALL' variable in the Ops section must be used explicitly. 
-# NOTE: In the second and third mode, you'll need to specify the instances of all the operators in the algorithm
+# 3) Perform random injection over one op per run". In this mode, you'll need to specify all the operators in the ``Instances'' section to the ``Ops'' section 
+# NOTE: In the second and third mode, you'll need to fill the ``Instances'' section.
 
 # Allowed values: 1) "errorRate"; 2) "dynamicInstance"; 3) "oneFaultPerRun" 
-InjectMode: "oneFaultPerRun" #"dynamicInstance"
+InjectMode: "oneFaultPerRun" 
